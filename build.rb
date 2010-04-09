@@ -1,6 +1,13 @@
 #!/usr/bin/env ruby
 
 require "fileutils"
+require "optparse"
+require "ostruct"
+
+def trim_leading(string)
+  p = string[/\A(\s*)/, 1]
+  string.gsub(/^#{p}/, "")
+end
 
 module Tor
   module_function
@@ -22,10 +29,29 @@ module Tor
   end
 end
 
-if File.exist? Tor.chroot
-  abort "directory #{Tor.chroot} already there -- will exit"
-else
+@opts, opts = OpenStruct.new, OptionParser.new do |op|
+  op.banner = "usage: build.rb <option>"
+  op.separator ""
+
+  op.on("-h",   "--help",    "show this message") { @opts.help   = true }
+  op.on("-c", "--create",      "create new jail") { @opts.create = true }
+  op.on("-u", "--update", "update existing jail") { @opts.update = true }
+end
+opts.parse! ARGV
+
+if @opts.help || !(@opts.create || @opts.update) ||
+                  (@opts.create && @opts.update)
+  puts opts.banner, opts.summarize
+  exit
+end
+
+if @opts.create
+  abort "#{Tor.chroot} exists" if File.exist?(Tor.chroot)
   FileUtils.mkdir_p Tor.chroot.join("dev")
+end
+
+if @opts.update
+  abort "#{Tor.chroot} does not exist" unless File.exist?(Tor.chroot)
 end
 
 Dir.glob("test/*_test.rb").each do |file|
@@ -55,37 +81,42 @@ end
 
 @copy_files = @copy_files.uniq.sort
 
+if @opts.update
+  @copy_files.reject! { |file| file =~ /\A\/(dev|etc|var)/ }
+end
+
 @copy_files.each do |file|
   FileUtils.mkdir_p  Tor.chroot.join(File.dirname(file))
-  FileUtils.cp file, Tor.chroot.join(file), :preserve => true
+  %x(cp -fp #{file} #{Tor.chroot.join(file)})
 end
 
-%x(grep ^tor: /etc/passwd > #{ Tor.chroot.join 'etc/passwd' })
-%x(grep ^tor: /etc/group  > #{ Tor.chroot.join 'etc/group'  })
+if @opts.create
+  %x(grep ^tor: /etc/passwd > #{ Tor.chroot.join 'etc/passwd' })
+  %x(grep ^tor: /etc/group  > #{ Tor.chroot.join 'etc/group'  })
 
-%w(lib log run).each do |dir|
-  FileUtils.mkdir_p     Tor.chroot.join("var", dir, "tor")
-  FileUtils.chmod 0700, Tor.chroot.join("var", dir, "tor")
+  %w(lib log run).each do |dir|
+    FileUtils.mkdir_p     Tor.chroot.join("var", dir, "tor")
+    FileUtils.chmod 0700, Tor.chroot.join("var", dir, "tor")
+  end
+
+  open(Tor.chroot.join("etc/tor/torrc"), "w") do |torrc|
+    torrc.write trim_leading <<-__EOF__
+      ClientOnly    1
+      DataDirectory /var/lib/tor
+      Log           notice stderr
+      PidFile       /var/run/tor/tor.pid
+      RunAsDaemon   0
+      SafeSocks     1
+      User          tor
+    __EOF__
+  end
+
+  puts trim_leading <<-__EOF__
+    Perform the following commands as root to complete the installation:
+
+      chown tor:tor #{ Tor.chroot.join "var", "{lib,log,run}", "tor" }
+      mknod -m 644  #{ Tor.chroot.join "dev/random" }  c 1 8
+      mknod -m 644  #{ Tor.chroot.join "dev/urandom" } c 1 9
+      mknod -m 666  #{ Tor.chroot.join "dev/null" }    c 1 3
+  __EOF__
 end
-
-open(Tor.chroot.join("etc/tor/torrc"), "w") do |torrc|
-torrc << <<-__EOF__
-ClientOnly    1
-DataDirectory /var/lib/tor
-Log           notice stderr
-PidFile       /var/run/tor/tor.pid
-RunAsDaemon   0
-SafeSocks     1
-User          tor
-__EOF__
-end
-
-puts <<-__EOF__
-Perform the following commands as root to complete the installation:
-
-  chown -R 0:0  #{ Tor.chroot }
-  chown tor:tor #{ Tor.chroot.join "var", "{lib,log,run}", "tor" }
-  mknod -m 644  #{ Tor.chroot.join "dev/random" }  c 1 8
-  mknod -m 644  #{ Tor.chroot.join "dev/urandom" } c 1 9
-  mknod -m 666  #{ Tor.chroot.join "dev/null" }    c 1 3
-__EOF__
