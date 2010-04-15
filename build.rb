@@ -4,6 +4,10 @@ require "fileutils"
 require "optparse"
 require "ostruct"
 
+def log(*args)
+  puts args
+end
+
 def trim_leading(string)
   p = string[/\A(\s*)/, 1]
   string.gsub(/^#{p}/, "")
@@ -46,11 +50,13 @@ if @opts.help || !(@opts.create || @opts.update) ||
 end
 
 if @opts.create
+  log "Creating a new jail..."
   abort "#{Tor.chroot} exists" if File.exist?(Tor.chroot)
   FileUtils.mkdir_p Tor.chroot.join("dev")
 end
 
 if @opts.update
+  log "Updating an existing jail..."
   abort "#{Tor.chroot} does not exist" unless File.exist?(Tor.chroot)
 end
 
@@ -112,11 +118,16 @@ if @opts.create
   end
 
   puts trim_leading <<-__EOF__
-    Perform the following commands as root to complete the installation:
+    Almost done. Perform the following commands as root to complete
+    the installation:
 
       chown tor:tor #{ Tor.chroot.join "var", "{lib,log,run}", "tor" }
       mknod -m 644  #{ Tor.chroot.join "dev/random" }  c 1 8
       mknod -m 644  #{ Tor.chroot.join "dev/urandom" } c 1 9
       mknod -m 666  #{ Tor.chroot.join "dev/null" }    c 1 3
   __EOF__
+end
+
+if @opts.update
+  log "Done."
 end
