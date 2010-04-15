@@ -45,7 +45,7 @@ opts.parse! ARGV
 
 if @opts.help || !(@opts.create || @opts.update) ||
                   (@opts.create && @opts.update)
-  puts opts.banner, opts.summarize
+  log opts.banner, opts.summarize
   exit
 end
 
@@ -117,7 +117,7 @@ if @opts.create
     __EOF__
   end
 
-  puts trim_leading <<-__EOF__
+  log trim_leading <<-__EOF__
     Almost done. Perform the following commands as root to complete
     the installation:
 
