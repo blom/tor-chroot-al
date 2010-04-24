@@ -49,6 +49,12 @@ if @opts.help || !(@opts.create || @opts.update) ||
   exit
 end
 
+log "Running tests..."
+Dir["test/*_test.rb"].each do |file|
+  output = %x(ruby -Itest #{file})
+  abort(output) unless $? == 0
+end
+
 if @opts.create
   log "Creating a new jail..."
   abort "#{Tor.chroot} exists" if File.exist?(Tor.chroot)
@@ -58,11 +64,6 @@ end
 if @opts.update
   log "Updating an existing jail..."
   abort "#{Tor.chroot} does not exist" unless File.exist?(Tor.chroot)
-end
-
-Dir.glob("test/*_test.rb").each do |file|
-  output = %x(ruby #{file})
-  abort(output) unless $? == 0
 end
 
 @copy_files = Dir.glob(%w(

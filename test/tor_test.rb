@@ -1,4 +1,4 @@
-require File.expand_path("../test_helper", __FILE__)
+require "test_helper"
 
 class TorTest < Test::Unit::TestCase
   it "should be installed as an arch package" do
