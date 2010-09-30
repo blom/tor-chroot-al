@@ -5,7 +5,7 @@ require "rake/testtask"
 require "yard"
 
 task(:default)
-CLEAN.include("chroot")
+CLEAN.include(".yardoc", "chroot", "doc")
 
 Rake::TestTask.new :test do |t|
   t.libs       = %w(test)
