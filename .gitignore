@@ -1,1 +1,5 @@
+.bundle
+.yardoc
+Gemfile.lock
 chroot
+doc

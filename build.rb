@@ -9,8 +9,8 @@ def log(*args)
 end
 
 def trim_leading(string)
-  p = string[/\A(\s*)/, 1]
-  string.gsub(/^#{p}/, "")
+  r = string[/\A(\s*)/, 1]
+  string.gsub(/^#{r}/, "")
 end
 
 module Tor
@@ -45,8 +45,8 @@ opts.parse! ARGV
 
 if @opts.help || !(@opts.create || @opts.update) ||
                   (@opts.create && @opts.update)
-  log opts.banner, opts.summarize
-  exit
+  log opts
+  exit 0
 end
 
 log "Running tests..."
@@ -132,3 +132,5 @@ end
 if @opts.update
   log "Done."
 end
+
+exit 0

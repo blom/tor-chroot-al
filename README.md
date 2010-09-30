@@ -8,20 +8,37 @@ Tor is installed as an [Arch package][3], and by that its dependencies. I made
 it for use with the [Tor server][4] I run. Originally based on [this][5]
 document.
 
+Installation
+------------
+
+    pacman -S git ruby tor
+    git clone http://github.com/blom/tor-chroot-al.git
+
 Usage
 -----
 
-* Run `pacman -S ruby tor` if needed.
-* Run `ruby build.rb -c` to create a new environment under `./chroot`. This
-  will also output some instructions which must be performed as root.
-* To update an existing `./chroot`, run `ruby build.rb -u`. This will leave
-  `./chroot/{dev,etc,var}` alone and overwrite everything else.
+### Creating a new environment
+
+    ruby build.rb -c
+
+* Creates a new environment under `./chroot`.
+* Outputs some commands to run as root.
+
+### Updating an existing environment
+
+    ruby build.rb -u
+
+* Leaves `./chroot/{dev,etc,var}` alone and overwrites everything else.
+
+### Running
+
+    chroot ./chroot /usr/bin/tor -f /etc/tor/torrc
+
 * The default `torrc` installed will only run Tor as a client, in the
   foreground, and log to stderr.
-* To start Tor jailed: `chroot ./chroot /usr/bin/tor -f /etc/tor/torrc`.
 
 [1]: http://www.torproject.org/
 [2]: http://www.archlinux.org/
 [3]: http://repos.archlinux.org/wsvn/packages/tor/trunk/
 [4]: http://tor-proxy.knegg.org/
-[5]: https://wiki.torproject.org/noreply/TheOnionRouter/TorInChroot
+[5]: https://trac.torproject.org/projects/tor/wiki/TheOnionRouter/TorInChroot
