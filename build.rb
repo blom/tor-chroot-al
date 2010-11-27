@@ -34,7 +34,7 @@ module Tor
 end
 
 @opts, opts = OpenStruct.new, OptionParser.new do |op|
-  op.banner = "usage: build.rb <option>"
+  op.banner = "usage: #{File.basename(__FILE__)} <option>"
   op.separator ""
 
   op.on("-h",   "--help",    "show this message") { @opts.help   = true }
@@ -43,8 +43,7 @@ end
 end
 opts.parse! ARGV
 
-if @opts.help || !(@opts.create || @opts.update) ||
-                  (@opts.create && @opts.update)
+if @opts.help || @opts.create == @opts.update
   log opts
   exit 0
 end
