@@ -1,7 +1,7 @@
 tor-chroot-al
 =============
 
-* [Homepage](http://github.com/blom/tor-chroot-al)
+* [Homepage](https://github.com/blom/tor-chroot-al)
 
 Installs [Tor][1] in a chroot environment on [Arch Linux][2]. It assumes that
 Tor is installed as an [Arch package][3], and by that its dependencies. I made
@@ -12,7 +12,7 @@ Installation
 ------------
 
     pacman -S git ruby tor
-    git clone http://github.com/blom/tor-chroot-al.git
+    git clone https://github.com/blom/tor-chroot-al.git
 
 Usage
 -----
