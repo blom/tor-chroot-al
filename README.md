@@ -4,8 +4,8 @@ tor-chroot-al
 * [Homepage](https://github.com/blom/tor-chroot-al)
 
 Installs [Tor][1] in a chroot environment on [Arch Linux][2]. It assumes that
-Tor is installed as an [Arch package][3], and by that its dependencies. I made
-it for use with the [Tor server][4] I run. Originally based on [this][5]
+Tor is installed as an [Arch package][3], and by that its dependencies. Made
+for use with a Tor server I used to run. Originally based on [this][4]
 document.
 
 Installation
@@ -40,5 +40,4 @@ Usage
 [1]: http://www.torproject.org/
 [2]: http://www.archlinux.org/
 [3]: http://repos.archlinux.org/wsvn/packages/tor/trunk/
-[4]: http://tor-proxy.knegg.org/
-[5]: https://trac.torproject.org/projects/tor/wiki/TheOnionRouter/TorInChroot
+[4]: https://trac.torproject.org/projects/tor/wiki/TheOnionRouter/TorInChroot
